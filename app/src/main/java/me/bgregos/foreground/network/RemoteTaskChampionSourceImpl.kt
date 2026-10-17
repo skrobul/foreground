@@ -250,6 +250,7 @@ class RemoteTaskChampionSourceImpl(
                 Gson().toJson(lifecycleUpdates)
             ))
             if (!response.optBoolean("success")) return SyncResult(false, response.optString("error", "TaskChampion sync failed"))
+            val previousTasks = tasks
             val imported = mutableListOf<Task>()
             val records = response.getJSONArray("tasks")
             for (index in 0 until records.length()) {
@@ -265,7 +266,7 @@ class RemoteTaskChampionSourceImpl(
                 val task = projectTaskChampionTask(uuid, properties)
                 if (task.status != "deleted") imported += task
             }
-            tasks = imported
+            tasks = preserveTaskOrder(previousTasks, imported).toMutableList()
             if (lifecycleUpdates.isNotEmpty()) {
                 val updatedUuids = lifecycleUpdates.map { it.uuid }.toSet()
                 localChanges.removeAll { it.uuid.toString() in updatedUuids }

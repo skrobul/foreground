@@ -51,4 +51,24 @@ class TaskChampionProjectionTest {
         assertEquals(listOf(Annotation("annotation text", Date(1_736_169_097_000))), task.annotations)
         assertEquals(emptyMap<String, String>(), task.others)
     }
+
+    @Test
+    fun projectsTaskChampionDatesUsedForOrdering() {
+        val task = projectTaskChampionTask(
+            UUID.fromString("33818dad-a6d4-46c9-aad4-8e2b4890c9e8"),
+            mapOf(
+                "description" to "dated",
+                "due" to "1792275900",
+                "entry" to "1792275000",
+                "wait" to "1792275500",
+                "end" to "1792275800"
+            )
+        )
+
+        assertEquals(Date(1_792_275_900_000), task.dueDate)
+        assertEquals(Date(1_792_275_000_000), task.createdDate)
+        assertEquals(Date(1_792_275_500_000), task.waitDate)
+        assertEquals(Date(1_792_275_800_000), task.endDate)
+        assertEquals(emptyMap<String, String>(), task.others)
+    }
 }

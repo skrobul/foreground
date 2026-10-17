@@ -37,7 +37,7 @@ class TaskViewModel @Inject constructor(
     var tasks: MutableStateFlow<List<Task>> = taskRepository.tasks
     val visibleTasks: Flow<List<Task>> =
         filtersRepository.taskFilters.combine(tasks) { filters, tasks ->
-            var out: ArrayList<Task> = arrayListOf<Task>().apply { addAll(tasks) }
+            var out: ArrayList<Task> = tasks.filter { Task.isVisibleInTaskList(it) }.toCollection(arrayListOf())
             filters.forEach {
                 if (it.enabled) out = out.filter { task ->
                     var filterResult = it.type.filter(task, it.parameter)

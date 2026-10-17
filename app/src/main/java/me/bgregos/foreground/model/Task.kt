@@ -51,6 +51,9 @@ data class Task(
 
     companion object {
 
+        fun isVisibleInTaskList(task: Task): Boolean =
+                task.status != "completed" && task.status != "deleted" && task.status != "recurring"
+
         fun shouldDisplay(task: Task):Boolean{
             if (!(task.status=="completed" || task.status=="deleted" || task.status=="recurring" || task.status=="waiting"))
                 return true

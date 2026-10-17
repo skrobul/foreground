@@ -42,7 +42,7 @@ public class Native {
      * @param handle Handle to the service
      * @return Sync result as JSON string
      */
-    public static native String nativeSync(String replicaDirectory, String serverUrl, String clientId, String encryptionSecret);
+    public static native String nativeSync(String replicaDirectory, String serverUrl, String clientId, String encryptionSecret, String updatesJson);
     
     /**
      * Close the TaskChampion service

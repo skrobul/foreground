@@ -3,6 +3,7 @@ package me.bgregos.foreground.network
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.bgregos.foreground.model.SyncResult
@@ -240,7 +241,14 @@ class RemoteTaskChampionSourceImpl(
         val clientId = sharedPreferences.getString("settings_taskchampion_client_id", null).orEmpty().ifBlank { me.bgregos.foreground.BuildConfig.TEST_SYNC_CLIENT_ID }
         val secret = sharedPreferences.getString("settings_taskchampion_encryption_secret", null).orEmpty().ifBlank { me.bgregos.foreground.BuildConfig.TEST_SYNC_SECRET }
         return try {
-            val response = JSONObject(Native.nativeSync(replicaPath ?: filesDir.resolve("taskchampion_replica").absolutePath, server, clientId, secret))
+            val lifecycleUpdates = localChanges.mapNotNull { it.toTaskChampionLifecycleUpdate() }
+            val response = JSONObject(Native.nativeSync(
+                replicaPath ?: filesDir.resolve("taskchampion_replica").absolutePath,
+                server,
+                clientId,
+                secret,
+                Gson().toJson(lifecycleUpdates)
+            ))
             if (!response.optBoolean("success")) return SyncResult(false, response.optString("error", "TaskChampion sync failed"))
             val imported = mutableListOf<Task>()
             val records = response.getJSONArray("tasks")
@@ -266,6 +274,10 @@ class RemoteTaskChampionSourceImpl(
                 )
             }
             tasks = imported
+            if (lifecycleUpdates.isNotEmpty()) {
+                val updatedUuids = lifecycleUpdates.map { it.uuid }.toSet()
+                localChanges.removeAll { it.uuid.toString() in updatedUuids }
+            }
             Log.i(TAG, "TaskChampion replica returned ${imported.size} visible tasks")
             SyncResult(true, "Sync completed: ${imported.size} tasks")
         } catch (error: Exception) {

@@ -36,12 +36,24 @@ class TaskRepository @Inject constructor(
     val diskLock = Mutex(false)
 
     suspend fun taskwarriorSync(): SyncResult {
-        remoteTaskSource.tasks = tasks.value.toMutableList()
-        remoteTaskSource.localChanges = localChanges.value.toMutableList()
-        val result = remoteTaskSource.taskwarriorSync()
-        tasks.value = remoteTaskSource.tasks
-        localChanges.value = remoteTaskSource.localChanges
-        return result
+        // Check if we're using TaskChampion backend
+        if (remoteTaskSource is RemoteTaskChampionSource) {
+            // Handle TaskChampion-specific sync logic
+            remoteTaskSource.tasks = tasks.value.toMutableList()
+            remoteTaskSource.localChanges = localChanges.value.toMutableList()
+            val result = remoteTaskSource.taskwarriorSync()
+            tasks.value = remoteTaskSource.tasks
+            localChanges.value = remoteTaskSource.localChanges
+            return result
+        } else {
+            // Handle regular taskd sync logic
+            remoteTaskSource.tasks = tasks.value.toMutableList()
+            remoteTaskSource.localChanges = localChanges.value.toMutableList()
+            val result = remoteTaskSource.taskwarriorSync()
+            tasks.value = remoteTaskSource.tasks
+            localChanges.value = remoteTaskSource.localChanges
+            return result
+        }
     }
 
     suspend fun testSync(): SyncResult {

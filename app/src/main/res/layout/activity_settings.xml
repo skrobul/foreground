@@ -295,6 +295,71 @@
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
+    
+    <!-- TaskChampion specific settings -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:textSize="24sp"
+        android:text="TaskChampion Setup" />
+        
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="8dp"
+        app:cardCornerRadius="4dp"
+        app:cardElevation="4dp"
+        app:contentPadding="6dp" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+            
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+                
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/settings_taskchampion_server"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="TaskChampion Server URL"
+                    android:inputType="textUri"
+                    android:singleLine="true"  />
+            </com.google.android.material.textfield.TextInputLayout>
+            
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+                
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/settings_taskchampion_uuid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Client UUID"
+                    android:inputType="text"
+                    android:singleLine="true"  />
+            </com.google.android.material.textfield.TextInputLayout>
+            
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+                
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/settings_taskchampion_secret"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Secret Key"
+                    android:inputType="textPassword"
+                    android:singleLine="true"  />
+            </com.google.android.material.textfield.TextInputLayout>
+            
+        </LinearLayout>
+        
+    </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"

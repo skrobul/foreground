@@ -61,6 +61,11 @@ class SettingsActivity : AppCompatActivity() {
         binding.settingsCertCa.setText(prefs.getString("settings_cert_ca", ""))
         binding.settingsPrivateKey.setText(prefs.getString("settings_cert_key", ""))
         binding.settingsCertPrivate.setText(prefs.getString("settings_cert_private", ""))
+        
+        // TaskChampion specific settings
+        binding.settingsTaskChampionServer.setText(prefs.getString("settings_taskchampion_server", ""))
+        binding.settingsTaskChampionUUID.setText(prefs.getString("settings_taskchampion_uuid", ""))
+        binding.settingsTaskChampionSecret.setText(prefs.getString("settings_taskchampion_secret", ""))
 
         binding.settingsSync.setOnClickListener {
 
@@ -207,6 +212,12 @@ class SettingsActivity : AppCompatActivity() {
         editor.putString("settings_cert_key", binding.settingsPrivateKey.text.toString())
         editor.putString("settings_cert_private", binding.settingsCertPrivate.text.toString())
         editor.putString("settings_default_tags", binding.settingsDefaultTags.text.toString())
+        
+        // TaskChampion specific settings
+        editor.putString("settings_taskchampion_server", binding.settingsTaskChampionServer.text.toString())
+        editor.putString("settings_taskchampion_uuid", binding.settingsTaskChampionUUID.text.toString())
+        editor.putString("settings_taskchampion_secret", binding.settingsTaskChampionSecret.text.toString())
+        
         editor.apply()
     }
 

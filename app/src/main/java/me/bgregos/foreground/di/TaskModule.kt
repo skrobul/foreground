@@ -9,7 +9,7 @@ import me.bgregos.foreground.data.taskfilter.TaskFilterRepository
 import me.bgregos.foreground.ForegroundListWidgetUpdater
 import me.bgregos.foreground.data.tasks.TaskRepository
 import me.bgregos.foreground.network.RemoteTaskSource
-import me.bgregos.foreground.network.RemoteTaskSourceImpl
+import me.bgregos.foreground.network.RemoteTaskChampionSourceImpl
 import me.bgregos.foreground.util.NotificationRepository
 import javax.inject.Singleton
 
@@ -44,7 +44,7 @@ abstract class TaskModule {
         @Singleton
         @Provides
         fun provideRemoteTaskSource(context: Context, sharedPreferences: SharedPreferences): RemoteTaskSource {
-            return RemoteTaskSourceImpl(context.filesDir, sharedPreferences)
+            return RemoteTaskChampionSourceImpl(context.noBackupFilesDir, sharedPreferences)
         }
     }
 }

@@ -6,7 +6,7 @@ package com.foreground.taskchampion;
 public class Native {
     
     static {
-        System.loadLibrary("foreground_taskchampion");
+        System.loadLibrary("foreground_taskchampion_jni");
     }
     
     /**
@@ -42,7 +42,7 @@ public class Native {
      * @param handle Handle to the service
      * @return Sync result as JSON string
      */
-    public static native String nativeSync(long handle);
+    public static native String nativeSync(String replicaDirectory, String serverUrl, String clientId, String encryptionSecret);
     
     /**
      * Close the TaskChampion service

@@ -57,7 +57,13 @@ class TaskRepository @Inject constructor(
     }
 
     suspend fun testSync(): SyncResult {
-        return remoteTaskSource.taskwarriorInitSync()
+        val result = remoteTaskSource.taskwarriorInitSync()
+        if (result.success) {
+            tasks.value = remoteTaskSource.tasks
+            localChanges.value = remoteTaskSource.localChanges
+            save()
+        }
+        return result
     }
 
     suspend fun resetSync(){
@@ -268,3 +274,5 @@ class TaskRepository @Inject constructor(
         return task
     }
 }
+
+private fun Date.toLocal(): Date = Date(time - TimeZone.getDefault().getOffset(time))

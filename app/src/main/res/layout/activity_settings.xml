@@ -119,183 +119,6 @@
 
     </androidx.cardview.widget.CardView>
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:text="Get this info from your Taskwarrior Server (inthe.am, freecinc, taskd)" />
-
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="8dp"
-        app:cardCornerRadius="4dp"
-        app:cardElevation="4dp"
-        app:contentPadding="6dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical" >
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight=".3" >
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/settings_address"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:ems="10"
-                        android:hint="@string/server_address"
-                        android:inputType="textUri"
-                        android:selectAllOnFocus="false"
-                        android:singleLine="true"
-                        tools:layout_editor_absoluteX="116dp"
-                        tools:layout_editor_absoluteY="51dp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight=".7" >
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/settings_port"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:ems="10"
-                        android:hint="@string/port"
-                        android:inputType="number"
-                        android:singleLine="true" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </LinearLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/settings_credentials"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/user_credentials_organization_user_key"
-                    android:inputType="text"
-                    android:selectAllOnFocus="true"
-                    android:singleLine="true"  />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" >
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/settings_cert_ca"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/ca_certificate"
-                            android:focusableInTouchMode="false"
-                            android:scrollHorizontally="true"
-                            android:singleLine="true"
-                            android:clickable="false" />
-
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <ImageButton
-                        android:id="@+id/settings_cert_ca_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/ic_folder_black_24dp"
-                        android:clickable="false"/>
-
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" >
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/settings_private_key"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/private_key_file"
-                            android:focusableInTouchMode="false"
-                            android:scrollHorizontally="true"
-                            android:singleLine="true"
-                            android:clickable="false" />
-
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <ImageButton
-                        android:id="@+id/settings_private_key_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/ic_folder_black_24dp"
-                        android:clickable="false"/>
-
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" >
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/settings_cert_private"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/private_certificate"
-                            android:focusableInTouchMode="false"
-                            android:scrollHorizontally="true"
-                            android:singleLine="true"
-                            android:clickable="false" />
-
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <ImageButton
-                        android:id="@+id/settings_cert_private_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/ic_folder_black_24dp"
-                        android:clickable="false"/>
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </androidx.cardview.widget.CardView>
-    
     <!-- TaskChampion specific settings -->
     <TextView
         android:layout_width="wrap_content"
@@ -304,7 +127,7 @@
         android:layout_marginRight="10dp"
         android:textSize="24sp"
         android:text="TaskChampion Setup" />
-        
+
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -317,11 +140,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
-            
+
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
-                
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/settings_taskchampion_server"
                     android:layout_width="match_parent"
@@ -330,35 +153,35 @@
                     android:inputType="textUri"
                     android:singleLine="true"  />
             </com.google.android.material.textfield.TextInputLayout>
-            
+
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
-                
+
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/settings_taskchampion_uuid"
+                    android:id="@+id/settings_taskchampion_client_id"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Client UUID"
+                    android:hint="Client ID"
                     android:inputType="text"
                     android:singleLine="true"  />
             </com.google.android.material.textfield.TextInputLayout>
-            
+
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
-                
+
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/settings_taskchampion_secret"
+                    android:id="@+id/settings_taskchampion_encryption_secret"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Secret Key"
+                    android:hint="Encryption Secret"
                     android:inputType="textPassword"
                     android:singleLine="true"  />
             </com.google.android.material.textfield.TextInputLayout>
-            
+
         </LinearLayout>
-        
+
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView

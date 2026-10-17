@@ -29,10 +29,44 @@ android {
         viewBinding true
     }
     namespace 'me.bgregos.foreground'
+    sourceSets.main.jniLibs.srcDir "$buildDir/generated/taskchampion/jniLibs"
 }
+
+def rustCrate = file('../rust/taskchampion-jni')
+def rustOutput = file("$buildDir/generated/taskchampion/jniLibs/arm64-v8a")
+def cargoTargetDir = System.getenv('CARGO_TARGET_DIR') ?: file("$buildDir/cargo-target").absolutePath
+tasks.register('buildTaskChampionNative', Exec) {
+    inputs.files(fileTree(rustCrate) { exclude 'target/**' })
+    outputs.file(new File(rustOutput, 'libforeground_taskchampion_jni.so'))
+    doFirst {
+        rustOutput.mkdirs()
+        def ndk = System.getenv('ANDROID_NDK_HOME') ?: System.getenv('ANDROID_NDK_ROOT') ?: '/opt/android-ndk-r30'
+        def toolchain = "$ndk/toolchains/llvm/prebuilt/linux-x86_64/bin"
+        environment 'CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER', "$toolchain/aarch64-linux-android21-clang"
+        environment 'CC_aarch64_linux_android', "$toolchain/aarch64-linux-android21-clang"
+        environment 'AR_aarch64_linux_android', "$toolchain/llvm-ar"
+        environment 'CARGO_TARGET_DIR', cargoTargetDir
+    }
+    workingDir rustCrate
+    commandLine 'sh', '-c', 'cargo build --locked --release --target aarch64-linux-android && cp "$CARGO_TARGET_DIR/aarch64-linux-android/release/libforeground_taskchampion_jni.so" ' + rustOutput
+}
+tasks.named('preBuild').configure { dependsOn 'buildTaskChampionNative' }
 
 def room_version = "2.4.3"
 def dagger_version = "2.30.1"
+def debugSync = new Properties()
+def debugSyncFile = rootProject.file('debug-sync.properties')
+if (debugSyncFile.exists()) {
+    debugSyncFile.withInputStream { debugSync.load(it) }
+}
+def asBuildConfigString = { String value -> '"' + value.replace('\\', '\\\\').replace('"', '\\"') + '"' }
+
+android.buildTypes.debug.buildConfigField 'String', 'TEST_SYNC_SERVER', asBuildConfigString(debugSync.getProperty('server', ''))
+android.buildTypes.debug.buildConfigField 'String', 'TEST_SYNC_CLIENT_ID', asBuildConfigString(debugSync.getProperty('clientId', ''))
+android.buildTypes.debug.buildConfigField 'String', 'TEST_SYNC_SECRET', asBuildConfigString(debugSync.getProperty('secret', ''))
+android.buildTypes.release.buildConfigField 'String', 'TEST_SYNC_SERVER', '""'
+android.buildTypes.release.buildConfigField 'String', 'TEST_SYNC_CLIENT_ID', '""'
+android.buildTypes.release.buildConfigField 'String', 'TEST_SYNC_SECRET', '""'
 
 dependencies {
     //implementation fileTree(include: ['*.jar'], dir: 'libs')

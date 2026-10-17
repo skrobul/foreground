@@ -100,11 +100,7 @@
     <string name="license">This app is licensed under the Apache License 2.0. Full terms of the license are available at https://www.apache.org/licenses/LICENSE-2.0.html</string>
     <string name="legal">Legal</string>
     <string name="credits">Credits</string>
-    <string name="sync_warning">Taskwarrior sync functionality is currently in beta. Despite the authors\' best efforts, your task list could be corrupted or otherwise lost. The authors are not responsible for any losses incurred.</string>
-    <string name="warning">Warning: Beta Feature</string>
-    <string name="accept">Accept</string>
-    <string name="go_back">Go Back</string>
-    <string name="taskwarrior_sync">Taskwarrior Sync (Beta)</string>
+    <string name="taskwarrior_sync">Taskwarrior Sync</string>
     <string name="auto_sync_requirement">You must enable sync first.</string>
     <string name="sync_enabled_message">Sync enabled successfully!</string>
     <string name="ok">Ok</string>

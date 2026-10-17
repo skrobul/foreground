@@ -1,204 +1,38 @@
-use jni::sys::jlong;
-use jni::{
-    objects::{JClass, JString, JObject},
-    JNIEnv,
-};
-use std::sync::Arc;
-use std::collections::HashMap;
-use tokio::runtime::Runtime;
-use taskchampion::Replica;
-use taskchampion::storage::SqliteStorage;
-use serde_json;
+use jni::{objects::{JClass, JString}, JNIEnv};
+use serde_json::json;
+use taskchampion::{storage::AccessMode, Replica, ServerConfig, SqliteStorage, Uuid};
 
-// Opaque handle type
-type Handle = usize;
-
-// Global registry to store the TaskChampion service instances
-lazy_static::lazy_static! {
-    static ref HANDLE_REGISTRY: std::sync::Mutex<HashMap<Handle, Arc<Replica>>> =
-        std::sync::Mutex::new(HashMap::new());
-}
-
-// Error handling for JNI functions
-#[derive(Debug)]
-pub enum JniError {
-    SerializationError(String),
-    TaskChampionError(String),
-    InvalidHandle,
-    Other(String),
-}
-
-impl From<JniError> for String {
-    fn from(err: JniError) -> Self {
-        match err {
-            JniError::SerializationError(msg) => format!("Serialization error: {}", msg),
-            JniError::TaskChampionError(msg) => format!("TaskChampion error: {}", msg),
-            JniError::InvalidHandle => "Invalid handle".to_string(),
-            JniError::Other(msg) => msg,
-        }
-    }
-}
-
-// Simple JSON serialization for errors
-fn serialize_error(error: &JniError) -> String {
-    let error_str: String = error.into();
-    serde_json::json!({
-        "error": error_str,
-        "type": "jni_error"
-    }).to_string()
+fn sync_replica(path: String, url: String, client_id: String, secret: String) -> Result<String, String> {
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build().map_err(|e| e.to_string())?;
+    runtime.block_on(async move {
+        let storage = SqliteStorage::new(path, AccessMode::ReadWrite, true).await.map_err(|e| e.to_string())?;
+        let mut replica = Replica::new(storage);
+        let client_id = Uuid::parse_str(&client_id).map_err(|e| format!("Invalid Client ID: {e}"))?;
+        let mut server = ServerConfig::Remote { url, client_id, encryption_secret: secret.into_bytes() }
+            .into_server().await.map_err(|e| e.to_string())?;
+        replica.sync(&mut server, false).await.map_err(|e| e.to_string())?;
+        let tasks = replica.all_task_data().await.map_err(|e| e.to_string())?;
+        let records: Vec<_> = tasks.into_values().map(|task| {
+            let properties: serde_json::Map<String, serde_json::Value> = task.iter()
+                .map(|(key, value)| (key.clone(), json!(value))).collect();
+            json!({"uuid": task.get_uuid().to_string(), "properties": properties})
+        }).collect();
+        Ok(json!({"success": true, "tasks": records}).to_string())
+    })
 }
 
 #[no_mangle]
-pub extern "C" fn JNI_OnLoad(_vm: jni::sys::JavaVM, _reserved: *mut std::os::raw::c_void) -> jni::sys::jint {
-    jni::sys::JNI_VERSION_1_6
-}
-
-#[no_mangle]
-pub extern "C" fn Java_com_foreground_taskchampion_Native_init(
-    env: JNIEnv,
-    _class: JClass,
-    no_backup_dir: JString,
-    config_json: JString,
-) -> jlong {
-    // Parse the parameters from JNI
-    let dir_path = match env.get_string(no_backup_dir) {
-        Ok(s) => s.into_utf8().unwrap().into_owned(),
-        Err(_) => return -1,
-    };
-    
-    let config_str = match env.get_string(config_json) {
-        Ok(s) => s.into_utf8().unwrap().into_owned(),
-        Err(_) => return -1,
-    };
-    
-    // Create a new TaskChampion replica with SQLite storage
-    let storage = SqliteStorage::new(dir_path)
-        .map_err(|e| JniError::TaskChampionError(format!("Failed to create storage: {:?}", e)))
-        .unwrap();
-        
-    let replica = Replica::new(storage)
-        .map_err(|e| JniError::TaskChampionError(format!("Failed to create replica: {:?}", e)))
-        .unwrap();
-    
-    // Add the replica to the registry
-    let id = rand::random::<usize>();
-    HANDLE_REGISTRY.lock().unwrap().insert(id, Arc::new(replica));
-    
-    id as jlong
-}
-
-#[no_mangle]
-pub extern "C" fn Java_com_foreground_taskchampion_Native_query(
-    env: JNIEnv,
-    _class: JClass,
-    handle: jlong,
-    query_json: JString,
-) -> JString {
-    // Parse the query from JSON
-    let query_str = match env.get_string(query_json) {
-        Ok(s) => s.into_utf8().unwrap().into_owned(),
-        Err(_) => return JString::from_str(&env, &serialize_error(&JniError::Other("Failed to parse query".to_string()))).unwrap(),
-    };
-    
-    // Get the replica from registry
-    let registry = HANDLE_REGISTRY.lock().unwrap();
-    let replica = match registry.get(&(handle as usize)) {
-        Some(r) => r,
-        None => return JString::from_str(&env, &serialize_error(&JniError::InvalidHandle)).unwrap(),
-    };
-
-    // Attempt to parse query and execute it
-    let query: serde_json::Value = match serde_json::from_str(&query_str) {
-        Ok(q) => q,
-        Err(e) => return JString::from_str(&env, &serialize_error(&JniError::SerializationError(format!("Failed to parse query JSON: {:?}", e)))).unwrap(),
-    };
-
-    // Here we would actually execute the query against TaskChampion
-    // For now, let's simulate a basic answer
-    let result = serde_json::json!({
-        "success": true,
-        "query": query,
-        "handle": handle as u64,
-        "type": "query_result"
-    }).to_string();
-
-    JString::from_str(&env, &result).unwrap()
-}
-
-#[no_mangle]
-pub extern "C" fn Java_com_foreground_taskchampion_Native_mutate(
-    env: JNIEnv,
-    _class: JClass,
-    handle: jlong,
-    command_json: JString,
-) -> JString {
-    // Parse the command from JSON
-    let command_str = match env.get_string(command_json) {
-        Ok(s) => s.into_utf8().unwrap().into_owned(),
-        Err(_) => return JString::from_str(&env, &serialize_error(&JniError::Other("Failed to parse command".to_string()))).unwrap(),
-    };
-
-    // Get the replica from registry
-    let registry = HANDLE_REGISTRY.lock().unwrap();
-    let replica = match registry.get(&(handle as usize)) {
-        Some(r) => r,
-        None => return JString::from_str(&env, &serialize_error(&JniError::InvalidHandle)).unwrap(),
-    };
-
-    // Attempt to parse command and execute it
-    let command: serde_json::Value = match serde_json::from_str(&command_str) {
-        Ok(c) => c,
-        Err(e) => return JString::from_str(&env, &serialize_error(&JniError::SerializationError(format!("Failed to parse command JSON: {:?}", e)))).unwrap(),
-    };
-
-    // Here we would actually execute the mutation against TaskChampion
-    // For now, let's simulate a basic answer
-    let result = serde_json::json!({
-        "success": true,
-        "command": command,
-        "handle": handle as u64,
-        "type": "mutation_result"
-    }).to_string();
-
-    JString::from_str(&env, &result).unwrap()
-}
-
-#[no_mangle]
-pub extern "C" fn Java_com_foreground_taskchampion_Native_sync(
-    env: JNIEnv,
-    _class: JClass,
-    handle: jlong,
-) -> JString {
-    // Get the replica from registry
-    let registry = HANDLE_REGISTRY.lock().unwrap();
-    let replica = match registry.get(&(handle as usize)) {
-        Some(r) => r,
-        None => return JString::from_str(&env, &serialize_error(&JniError::InvalidHandle)).unwrap(),
-    };
-
-    // Perform synchronization with server - this is a placeholder
-    // In real implementation we would:
-    // 1. Check connection status
-    // 2. Initiate sync operation with replica
-    // 3. Return sync result details
-    
-    let result = serde_json::json!({
-        "success": true,
-        "handle": handle as u64,
-        "type": "sync_result",
-        "sync_status": "completed"
-    }).to_string();
-
-    JString::from_str(&env, &result).unwrap()
-}
-
-#[no_mangle]
-pub extern "C" fn Java_com_foreground_taskchampion_Native_close(
-    _env: JNIEnv,
-    _class: JClass,
-    handle: jlong,
-) {
-    // Clean up resources associated with the handle
-    let mut registry = HANDLE_REGISTRY.lock().unwrap();
-    registry.remove(&(handle as usize));
+pub extern "system" fn Java_com_foreground_taskchampion_Native_nativeSync(
+    mut env: JNIEnv, _class: JClass, path: JString, url: JString, client_id: JString, secret: JString,
+) -> jni::sys::jstring {
+    let result = (|| -> Result<String, String> {
+        let path: String = env.get_string(&path).map_err(|e| e.to_string())?.into();
+        let url: String = env.get_string(&url).map_err(|e| e.to_string())?.into();
+        let client_id: String = env.get_string(&client_id).map_err(|e| e.to_string())?.into();
+        let secret: String = env.get_string(&secret).map_err(|e| e.to_string())?.into();
+        sync_replica(path, url, client_id, secret)
+    })().unwrap_or_else(|error| json!({"success": false, "error": error}).to_string());
+    env.new_string(result).map(|s| s.into_raw()).unwrap_or(std::ptr::null_mut())
 }

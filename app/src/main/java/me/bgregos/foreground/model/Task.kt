@@ -190,7 +190,7 @@ data class Task(
             }
 
             val others: MutableMap<String, String> = mutableMapOf()
-            //remove what we have specific fields for
+            //remove what we have specific fields for (for the lossless projection)
             obj.remove("description")
             obj.remove("uuid")
             obj.remove("project")
@@ -203,7 +203,7 @@ data class Task(
             obj.remove("annotations")
             obj.remove("wait")
             obj.remove("end")
-            //add all others to the others map
+            //add all others to the others map (which is preserved in lossless projection)
             for (key in obj.keys()){
                 others[key] = unescape(obj.getString(key))
             }

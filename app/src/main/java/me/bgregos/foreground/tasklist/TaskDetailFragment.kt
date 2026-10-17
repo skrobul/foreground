@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.forEach
 import androidx.core.widget.doOnTextChanged
@@ -97,6 +98,17 @@ class TaskDetailFragment : Fragment() {
         dateFormat.timeZone = TimeZone.getDefault()
         val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
         timeFormat.timeZone = TimeZone.getDefault()
+
+        viewModel.currentTask?.annotations?.takeIf { it.isNotEmpty() }?.let { annotations ->
+            binding.annotationsCard.visibility = View.VISIBLE
+            annotations.forEach { annotation ->
+                binding.annotationList.addView(TextView(requireContext()).apply {
+                    text = "${dateFormat.format(annotation.entry)}\n${annotation.description}"
+                    textSize = 14f
+                    setPadding(0, 8, 0, 8)
+                })
+            }
+        }
 
         if (!twoPane) {
             (activity as AppCompatActivity?)?.setSupportActionBar(binding.detailToolbar)

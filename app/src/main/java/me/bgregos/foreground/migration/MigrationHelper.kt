@@ -102,3 +102,4 @@ class MigrationHelper(
 
         editor.apply()
     }
+}

@@ -82,3 +82,4 @@ class TaskChampionSyncService(
         // This would actually query the TaskChampion service for current status
         return@withContext "Connected to server"
     }
+}

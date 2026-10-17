@@ -254,24 +254,16 @@ class RemoteTaskChampionSourceImpl(
             val records = response.getJSONArray("tasks")
             for (index in 0 until records.length()) {
                 val record = records.getJSONObject(index)
-                val properties = record.getJSONObject("properties")
-                val extras = mutableMapOf<String, String>()
-                val keys = properties.keys()
+                val uuid = UUID.fromString(record.getString("uuid"))
+                val propertiesJson = record.getJSONObject("properties")
+                val properties = mutableMapOf<String, String>()
+                val keys = propertiesJson.keys()
                 while (keys.hasNext()) {
                     val key = keys.next()
-                    val value = properties.get(key)
-                    if (key !in setOf("description", "status", "project", "priority", "due", "wait", "entry", "end", "tags", "uuid")) {
-                        extras[key] = value.toString()
-                    }
+                    properties[key] = propertiesJson.get(key).toString()
                 }
-                val uuid = UUID.fromString(record.getString("uuid"))
-                val status = properties.optString("status", "pending")
-                if (status != "deleted") imported += Task(
-                    name = properties.optString("description", ""), uuid = uuid,
-                    project = properties.optString("project").takeIf { it.isNotEmpty() },
-                    priority = properties.optString("priority").takeIf { it.isNotEmpty() },
-                    status = status, others = extras
-                )
+                val task = projectTaskChampionTask(uuid, properties)
+                if (task.status != "deleted") imported += task
             }
             tasks = imported
             if (lifecycleUpdates.isNotEmpty()) {

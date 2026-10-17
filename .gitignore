@@ -11,3 +11,4 @@
 /app-debug.apk
 /app-release-unsigned.apk
 /rust/taskchampion-jni/target/
+.scratch
